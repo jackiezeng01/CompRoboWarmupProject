@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'wall_follower = warmup_project.wall_follower:main'
         ],
     },
 )
