@@ -13,27 +13,37 @@ class TeleopNode(Node):
         self.pub = self.create_publisher(Twist, 'cmd_vel', 10)
         self.settings = termios.tcgetattr(sys.stdin)
         self.key = None
+        self.linSpeed = 0.5
+        self.angSpeed = 1.0
+
         self.process_key()
 
     def getKey(self):
         tty.setraw(sys.stdin.fileno())
         select.select([sys.stdin], [], [], 0)
-        self.key = sys.stdin.read(1)
+        key = sys.stdin.read(1)
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
-        return self.key
+        return key
 
     def process_key(self):
         while self.key != '\x03':
             self.key = self.getKey()
             print("Key: " + self.key)
+            twt = Twist()
             if self.key == 'w':
-                twt = Twist()
-                twt.linear.x = 1.0
-                self.pub.publish(twt)
-            if self.key == 's':
-                twt = Twist()
-                twt.linear.x = -1.0
-                self.pub.publish(twt)
+                twt.linear.x = -self.linSpeed
+                twt.angular.z = 0.0
+            elif self.key == 's':
+                twt.linear.x = self.linSpeed
+                twt.angular.z = 0.0
+            elif self.key == 'a':
+                twt.linear.x = -self.linSpeed/3
+                twt.angular.z = self.angSpeed
+            elif self.key == 'd':
+                twt.linear.x = -self.linSpeed/3
+                twt.angular.z = -self.angSpeed
+                
+            self.pub.publish(twt)
         
 def main(args=None):
     rclpy.init(args=args)         # Initialize communication with ROS
