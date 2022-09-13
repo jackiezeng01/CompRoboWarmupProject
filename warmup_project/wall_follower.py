@@ -1,7 +1,6 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
-from neato2_interfaces.msg import Accel
 from geometry_msgs.msg import Twist
 
 class WallFollowerNode(Node):
