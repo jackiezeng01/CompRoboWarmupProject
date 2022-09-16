@@ -15,7 +15,6 @@ class TeleopNode(Node):
         self.key = None
         self.linSpeed = 0.5
         self.angSpeed = 1.0
-
         self.process_key()
 
     def getKey(self):
