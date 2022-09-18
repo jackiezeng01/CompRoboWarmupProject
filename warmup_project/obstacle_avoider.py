@@ -3,21 +3,21 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 
-class PersonFollowerNode(Node):
+class ObstableAvoiderNode(Node):
     def __init__(self):
         super().__init__('wall_follower_node')
         self.pub_velocity = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.pub_marker = self.create_publisher(Marker, 'detected_object', 10)
+        self.pub_marker = self.create_publisher(MarkerArray, 'detected_object', 10)
         self.sub = self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
-        self.max_angle = 45
+        self.max_angle = 90
         self.max_distance = 3
-        self.object_distance = 0
-        self.object_angle = 0
         self.timer = self.create_timer(0.1, self.run_loop)
 
     def process_scan(self, msg):
+        object_list = []
+        markers = MarkerArray()
         total_x = 0.0
         total_y = 0.0
         count = 0
@@ -31,28 +31,29 @@ class PersonFollowerNode(Node):
                 total_y += y
 
                 count += 1
-        
-        if (count == 0):
-            self.object_distance = 0
-            self.object_angle = 0
-        else:
-            cent_x = total_x/count
-            cent_y = total_y/count
+            elif count != 0:
+                cent_x = total_x/count
+                cent_y = total_y/count
 
-            self.object_angle = math.degrees(math.atan(cent_y/cent_x))
-            self.object_distance = math.sqrt(cent_x ** 2 + cent_y ** 2)
-            marker = self.create_marker(cent_x, cent_y)
-            self.pub_marker.publish(marker)
+                object_list.append((cent_x, cent_y))
+
+                markers.markers.append(self.create_marker(cent_x,cent_y, len(object_list)))
+
+                total_x = 0.0
+                total_y = 0.0
+                count = 0
+        
+        print(object_list)
+        self.pub_marker.publish(markers)
+        
 
     def run_loop(self):
-        new_twist = Twist()
-        new_twist.angular.z = 0.03 * self.object_angle
-        new_twist.linear.x = 0.3 * self.object_distance
-        self.pub_velocity.publish(new_twist)
-    
-    def create_marker(self, x, y) -> Marker:
+        pass
+
+    def create_marker(self, x, y, id) -> Marker:
         marker = Marker()
         marker.header.frame_id = "base_link"
+        marker.id = id
         marker.color.a = 1.0
         marker.color.r = 1.0
         marker.color.g = 0.5
@@ -63,14 +64,13 @@ class PersonFollowerNode(Node):
         marker.scale.x = 0.1
         marker.scale.y = 0.1
         marker.scale.z = 0.1
-        marker.type = Marker.SPHERE
+        marker.type = Marker.ARROW
         return marker
-            
-        
+
 
 def main(args=None):
     rclpy.init(args=args)         # Initialize communication with ROS
-    node = PersonFollowerNode()   # Create our Node
+    node = ObstableAvoiderNode()   # Create our Node
     rclpy.spin(node)              # Run the Node until ready to shutdown
     rclpy.shutdown()              # cleanup
 
