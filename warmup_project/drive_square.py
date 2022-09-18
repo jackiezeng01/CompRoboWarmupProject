@@ -8,30 +8,35 @@ class DriveSquareNode(Node):
         self.pub = self.create_publisher(Twist, 'cmd_vel', 10)
         timer_period = 0.1
         self.count = 0
+        self.turn = 0
         self.timer = self.create_timer(timer_period, self.run_loop)
 
     def run_loop(self):
         if self.count == 0:
             twt = Twist()
-            twt.linear.x = -0.5
+            twt.linear.x = 0.5
             self.pub.publish(twt)
         elif self.count == 20:
             twt = Twist()
             twt.linear.x = 0.0
             self.pub.publish(twt)
-        elif self.count == 25:
+        elif self.count == 30:
             twt = Twist()
-            twt.angular.z = 0.5
+            twt.angular.z = 0.786
             self.pub.publish(twt)
-        elif self.count == 56:
+        elif self.count == 50:
             twt = Twist()
             twt.angular.z = 0.0
             self.pub.publish(twt)
         
         self.count += 1
 
-        if self.count == 61:
-            self.count = 0
+        if self.count == 60:
+            if self.turn == 3:
+                self.destroy_node()
+            else:
+                self.count = 0
+                self.turn += 1
 
 
 def main(args=None):
