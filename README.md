@@ -1,14 +1,75 @@
-# CompRoboWarmupProject
-warmup project for comp robo 2022
+# CompRobo Warmup Project 2022
 
-For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach.  Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
+Explain what this project was, list contributors
 
-For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors?  Consider including a state transition diagram in your writeup.
+# Teleop
 
-How was your code structured? Make sure to include a sufficient detail about the object-oriented structure you used for your project.
+![](pictures/teleop_demo.gif)
 
-What if any challenges did you face along the way?
+## Approach
+how this is created, basic concept
 
-What would you do to improve your project if you had more time?
+## Structure
+structure - like ros topics, publishers, subscribers
 
-What are the key takeaways from this assignment for future robotic programming projects? For each takeaway, provide a sentence or two of elaboration.
+## Limitation
+what can be improved
+
+# Drive Square
+
+![](pictures/drive_square_demo.gif)
+
+## Approach
+how this is created, basic concept
+
+## Structure
+structure - like ros topics, publishers, subscribers
+
+## Limitation
+what can be improved
+
+# Wall Follower
+
+## Approach
+how this is created, basic concept
+
+## Structure
+structure - like ros topics, publishers, subscribers
+
+## Limitation
+what can be improved
+
+# Person Follower
+
+![](pictures/person_follower_demo.gif)
+
+## Approach
+how this is created, basic concept
+
+## Structure
+structure - like ros topics, publishers, subscribers
+
+## Limitation
+what can be improved
+
+# Obstacle Avoidance
+
+## Approach
+how this is created, basic concept
+
+## Structure
+structure - like ros topics, publishers, subscribers
+
+## Limitation
+what can be improved
+
+# Finite State Control
+
+## Approach
+how this is created, basic concept
+
+## Structure
+structure - like ros topics, publishers, subscribers
+
+## Limitation
+what can be improved

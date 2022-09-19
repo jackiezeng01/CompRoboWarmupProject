@@ -30,16 +30,16 @@ class TeleopNode(Node):
             print("Key: " + self.key)
             twt = Twist()
             if self.key == 'w':
-                twt.linear.x = -self.linSpeed
-                twt.angular.z = 0.0
-            elif self.key == 's':
                 twt.linear.x = self.linSpeed
                 twt.angular.z = 0.0
+            elif self.key == 's':
+                twt.linear.x = -self.linSpeed
+                twt.angular.z = 0.0
             elif self.key == 'a':
-                twt.linear.x = -self.linSpeed/3
+                twt.linear.x = self.linSpeed/3
                 twt.angular.z = self.angSpeed
             elif self.key == 'd':
-                twt.linear.x = -self.linSpeed/3
+                twt.linear.x = self.linSpeed/3
                 twt.angular.z = -self.angSpeed
                 
             self.pub.publish(twt)
