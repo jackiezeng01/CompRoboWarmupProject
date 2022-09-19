@@ -30,6 +30,8 @@ what can be improved
 
 # Wall Follower
 
+![](pictures/wall_follower_demo.gif)
+
 ## Approach
 how this is created, basic concept
 
