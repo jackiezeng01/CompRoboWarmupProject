@@ -11,7 +11,7 @@ class WallFollowerNode(Node):
         self.scan_data = []
 
     def process_scan(self, msg):
-        K = 1
+        K = 2
         if msg.ranges[45] != 0.0 and msg.ranges[135] != 0:
             error = msg.ranges[45] - msg.ranges[135]
             twt = Twist()
