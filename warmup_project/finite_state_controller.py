@@ -24,6 +24,7 @@ class FiniteStateControllerNode(Node):
         self.object_angle = 0
         self.idle_count = 0
         self.dance_count = 0
+        self.dance_speed = 7.0
         self.state = State.CIRCLE
         self.timer = self.create_timer(0.1, self.run_loop)
 
@@ -73,7 +74,7 @@ class FiniteStateControllerNode(Node):
     def circle_around(self):
         new_twist = Twist()
         new_twist.angular.z = 1.0
-        new_twist.linear.x = 0.1
+        new_twist.linear.x = 0.5
         self.pub_velocity.publish(new_twist)
 
         if (self.object_angle == 0 and self.object_distance == 0):
@@ -87,26 +88,29 @@ class FiniteStateControllerNode(Node):
         new_twist.linear.x = 0.3 * self.object_distance
         self.pub_velocity.publish(new_twist)
 
-        if (self.object_angle == 0 and self.object_distance == 0):
-            self.idle_count += 1
-        elif self.idle_count == 10:
+        if self.idle_count == 20:
             self.state = State.CIRCLE
+            self.idle_count = 0
+        elif (self.object_angle == 0 and self.object_distance == 0):
+            self.idle_count += 1
         else:
             self.idle_count = 0
     
     def dance_with_joy(self):
-        
+        new_twist = Twist()
+        if self.dance_count > 27:
+            new_twist.angular.z = 0.0
+            new_twist.linear.x = 0.0
+        else:
+            new_twist.angular.z = self.dance_speed
+            new_twist.linear.x = 0.0
 
-        if self.dance_count == 0:
-            new_twist = Twist()
-            new_twist.angular.z = 1
-            new_twist.linear.x = 0.0
-        if self.dance_count == 10:
-            new_twist = Twist()
-            new_twist.angular.z = -1
-            new_twist.linear.x = 0.0
-        
+        self.dance_count += 1
         self.pub_velocity.publish(new_twist)
+
+        if self.dance_count == 35:
+            self.dance_count = 0
+            self.state = State.FOLLOW
         
     def run_loop(self):
         if self.state == State.FOLLOW:

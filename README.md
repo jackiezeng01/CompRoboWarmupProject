@@ -69,6 +69,8 @@ what can be improved
 
 # Finite State Control
 
+![](pictures/finite_state_controller_demo.gif)
+
 ## Approach
 how this is created, basic concept
 
