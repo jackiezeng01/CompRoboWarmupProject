@@ -14,9 +14,9 @@ class Vector2D():
         self.x = x
         self.y = y
 
-    def add(self, v2):
-        x_sum = self.x + v2.x
-        y_sum = self.y + v2.y
+    def subtract(self, v2):
+        x_sum = self.x - v2.x
+        y_sum = self.y - v2.y
         return Vector2D(x_sum, y_sum)
 
 class Point():
@@ -110,10 +110,10 @@ class ObstacleAvoiderNode(Node):
 
     def calculate_direction(self, obstacle_vector_list):
         # calculate direction the robot should go by adding up the negative vectors and the goal destination. 
-        self.print_obstacle_vectors()
+        self.print_obstacle_vectors(obstacle_vector_list)
         direction = Vector2D(self.goal_vector.x, self.goal_vector.y)
         for vector in obstacle_vector_list:
-            direction = direction.add(vector)
+            direction = direction.subtract(vector)
         print("updating direction")
         return direction
 
@@ -124,9 +124,9 @@ class ObstacleAvoiderNode(Node):
         if abs(get_distance(self.goal, self.robot_pose)) > 0.5:
             new_twist.linear.x = 0.1
             if (self.direction.x < 0 and abs(self.direction.x + self.yaw) < 1):
-                new_twist.angular.z = -0.1
-            elif (self.direction.x > 0 and abs(self.direction.x - self.yaw) < 1):
                 new_twist.angular.z = 0.1
+            elif (self.direction.x > 0 and abs(self.direction.x - self.yaw) < 1):
+                new_twist.angular.z = -0.1
         # print(new_twist.angular.z, new_twist.linear.x)
         self.pub_velocity.publish(new_twist)
 
