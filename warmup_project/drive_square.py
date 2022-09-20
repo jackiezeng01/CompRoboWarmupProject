@@ -38,7 +38,6 @@ class DriveSquareNode(Node):
                 self.count = 0
                 self.turn += 1
 
-
 def main(args=None):
     rclpy.init(args=args)         # Initialize communication with ROS
     node = DriveSquareNode()   # Create our Node

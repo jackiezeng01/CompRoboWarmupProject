@@ -7,7 +7,7 @@ Explain what this project was, list contributors
 ![](pictures/teleop_demo.gif)
 
 ## Approach
-how this is created, basic concept
+
 
 ## Structure
 structure - like ros topics, publishers, subscribers
@@ -55,6 +55,8 @@ structure - like ros topics, publishers, subscribers
 what can be improved
 
 # Obstacle Avoidance
+
+![](pictures/obstacle_avoidance_demo.gif)
 
 ## Approach
 how this is created, basic concept
