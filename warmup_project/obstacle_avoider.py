@@ -124,9 +124,9 @@ class ObstacleAvoiderNode(Node):
         if abs(get_distance(self.goal, self.robot_pose)) > 0.5:
             new_twist.linear.x = 0.1
             if (self.direction.x < 0 and abs(self.direction.x + self.yaw) < 1):
-                new_twist.angular.z = 0.2
+                new_twist.angular.z = 0.15
             elif (self.direction.x > 0 and abs(self.direction.x - self.yaw) < 1):
-                new_twist.angular.z = -0.2
+                new_twist.angular.z = -0.15
         # print(new_twist.angular.z, new_twist.linear.x)
         self.pub_velocity.publish(new_twist)
 
