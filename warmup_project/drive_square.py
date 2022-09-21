@@ -12,18 +12,22 @@ class DriveSquareNode(Node):
         self.timer = self.create_timer(timer_period, self.run_loop)
 
     def run_loop(self):
+        # move 1m front
         if self.count == 0:
             twt = Twist()
             twt.linear.x = 0.5
             self.pub.publish(twt)
+        # wait for 1 second to speed down
         elif self.count == 20:
             twt = Twist()
             twt.linear.x = 0.0
             self.pub.publish(twt)
+        # rotate 90 degrees
         elif self.count == 30:
             twt = Twist()
             twt.angular.z = 0.786
             self.pub.publish(twt)
+        # wait for 1 second to speed down
         elif self.count == 50:
             twt = Twist()
             twt.angular.z = 0.0
@@ -31,7 +35,9 @@ class DriveSquareNode(Node):
         
         self.count += 1
 
+        # if count hit 60, you traveled 1m and did 90 degrees so restart the counter
         if self.count == 60:
+            # if you completed the square, 
             if self.turn == 3:
                 self.destroy_node()
             else:
