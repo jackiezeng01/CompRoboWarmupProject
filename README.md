@@ -7,7 +7,11 @@ This Warmup Project involved programming the Neato to execute a variety of behav
 ![](pictures/teleop_demo.gif)
 
 ## Approach
-
+"Telop" allows the user to control the motion of the robot by with the keys WASD. The program reads in keyboard input and adjusts the linear speed and angular speed based on the following mapping:
+- W : move straight forward
+- S : move straight backwards
+- A : turn left and move forwards slowly
+- D : turn right and move forwards slowly
 
 ## Structure
 
@@ -16,7 +20,7 @@ This Warmup Project involved programming the Neato to execute a variety of behav
 Velocity data (Twist message) is published to /cmd_vel topic to change the robot's velocity.
 
 ## Limitation
-what can be improved
+Our current implementation allows for sufficient control of the robot using keyboard input. However, the linear and angular speeds are hard coded. Potential improvements include shifting from keyboard control to joystick control, where the speed of the robot can be an additional input, enabling more fine tuned control.
 
 # Drive Square
 
@@ -48,6 +52,9 @@ This can be improved a lot by subscribing to the /odom topic and getting to know
 ![](pictures/wall_follower_demo.gif)
 
 ## Approach
+The wall follower 
+
+
 how this is created, basic concept
 
 ## Structure
