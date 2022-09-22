@@ -1,6 +1,6 @@
 # CompRobo Warmup Project 2022
 
-Please add summary here! 
+This Warmup Project involved programming the Neato to execute a variety of behaviors including: driving in a square, wall following, person following, obstacle avoiding, and exhibiting creative behavior based on finite-state machine of our design. From working on this project, the team was able to gain experience in using ROS and its visualization tools, testing with ROS, processing sensor data streams, understanding the gap between simulated versus physical Neato, etc.
 
 # Teleop
 
@@ -23,6 +23,7 @@ what can be improved
 ![](pictures/drive_square_demo.gif)
 
 ## Approach
+For "Driving Square", the project description proposed two approaches: 1) timing or 2) Neato's on-board odometry. For simplicity, we chose the first approach.
 Drive square takes the most simple form of implementation: hard-coded values and a timer. The robot works by repeating the below behavior: 
 - Move 1m with constant velocity for 2 seconds, 
 - Wait for 1 second
@@ -38,7 +39,7 @@ Repeating this behavior will eventually make the robot drive in a square. Veloci
 Velocity data (Twist message) is published to /cmd_vel topic to change the robot's velocity.
 
 ## Limitation
-Since all the values are hardcoded, the code works best in the simulated environment where the ground is flat and there are no obstacles. Once the code is running in the real world, there was an issue with the robot not turning 90 degrees successfully or moving less than 1m based on the ground status and obstacles.
+Although our current implementation was easy to implement and is easy to understand how it works, the code is hard-coded. Since all the values are hardcoded, the code works best in the simulated environment where the ground is flat and there are no obstacles. Once the code is running in the real world, there was an issue with the robot not turning 90 degrees successfully or moving less than 1m based on the ground status and obstacles.
 
 This can be improved a lot by subscribing to the /odom topic and getting to know the robot's position relative to its starting location. This will allow the robot to move at the exact distance and rotate at an exact angle. Also, the /bump topic can also be helpful to know if the robot is colliding with an obstacle and if there's a need to avoid it by taking a different path.
 
@@ -138,3 +139,4 @@ There are several limitations to mention:
 # Takeaways
 
 - Getting familiar with ROS: 
+- The communication pipeline (involving topics, subscribers, publishers) used in ROS 
