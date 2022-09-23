@@ -96,13 +96,22 @@ Since the robot is locating a person by getting the centroid of the LIDAR measur
 ![](pictures/obstacle_avoidance_demo.gif)
 
 ## Approach
-For this task, we set the robot 
+For this task, we took the approach of summing the force of attraction to the goal destination and the forces of opposition from the obstacles to determine the direction of motion for the robot. 
+
+We first set a goal destination of [5,0] on the world frame for the robot to navigate to. By subscribing to the odometry information, we were able to locate the robot in terms of world cartesian coordinates and orient it in terms of row, pitch, and yaw. With this information, we created a goal vector from the robot to the goal destination. 
+
+To detect obstacles, we used the laser scan data and limited the scan range to within 3 meters and only the 180 degrees in front of the robot to focus on avoiding oncoming and close obstacles. The clustering method described in the person following documentation is used to determine the cartesian location of each obstacle. We created opposing vectors from the obstacles to the robot and weighed the vectors with linear-mapping system for obstacles - obstacles that are closer to the robot are more heavily weighed. 
+
+At each time step, the goal vector and the weighted opposing vectors are summed to calculate a direction of motion for the robot. This cartesian direction is then translated to polar coordinates to handle robot velocity. 
 
 ## Structure
 ![](pictures/obstacle_avoider_structure.png)
 
 ## Limitation
-what can be improved
+The following limitations for this behavior exists:
+- The implementation to move the robot in the calculated direction of motion is not robust. Next steps is to convert the direction of motion into an angle and compare it with the robot's yaw to better control how much the robot turns.
+- We did not implement proportional control for obstacle avoidance.
+- Due to time constraints, we also did not have time to try this code in the real world.
 
 # Finite State Control
 
