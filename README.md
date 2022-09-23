@@ -158,5 +158,6 @@ There are several limitations to mention:
 
 # Takeaways
 
-- Getting familiar with ROS: 
-- The communication pipeline (involving topics, subscribers, publishers) used in ROS 
+- Getting familiar with ROS
+- The communication pipeline (involving topics, subscribers, publishers) used in ROS
+- Learn how to simulate robot with Gazebo, and use Rviz2 for visualization
