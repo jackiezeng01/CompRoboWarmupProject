@@ -10,6 +10,9 @@ from nav_msgs.msg import Odometry
 from visualization_msgs.msg import Marker, MarkerArray
 
 class Vector2D():
+    '''
+    Class to manipulate 2D vectors
+    '''
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -18,11 +21,22 @@ class Vector2D():
         x_sum = self.x - v2.x
         y_sum = self.y - v2.y
         return Vector2D(x_sum, y_sum)
+    
+    def scale_weight(self, x_weight, y_weight):
+        self.x = self.x*x_weight
+        self.y = self.y*y_weight
+
+    def __str__(self):
+        return "[" + str(self.x) + "," + str(self.y) + "]"
 
 class Point():
+    '''
+    Class to store cartesian coordinates
+    '''
     def __init__(self, x, y):
         self.x = x
         self.y = y        
+
 
 class ObstacleAvoiderNode(Node):
     def __init__(self):
@@ -32,30 +46,41 @@ class ObstacleAvoiderNode(Node):
         self.sub_laser = self.create_subscription(LaserScan, 'scan', self.process_scan, 10)
         self.sub_odom = self.create_subscription(Odometry, 'odom', self.process_odom, 10)
 
+        # Laser scan settings
+        self.max_angle = 90   # Only scan the front 180 degrees
+        self.max_distance = 3   # Only count points that are closer than 3 meters
+        
+        # Initialize goal destination in cartesian coordinates
         self.goal = Point(5,0)
+        self.goal_vector = Vector2D(0,0)
         self.goal_vector_weight_x = 0.5
         self.goal_vector_weight_y = 1
-        self.max_angle = 90
-        self.max_distance = 3
-        self.direction = Vector2D(0,0)
 
+        # These update with every timestep
+        self.heading = Vector2D(0,0) # Heading of the robot movement 
+        self.robot_pose = Point(0,0) # Current location of the robot
+        self.yaw = 0
+
+        # Run loop
         self.timer = self.create_timer(0.1, self.run_loop)
-        self.drive_angle = 0
-        self.drive_distance = 0
 
-        self.robot_pose = Point(0,0)
-        
     def process_odom(self, msg):
         '''
-        sending where the robot's location is, and its orientation. 
+        Get information on the robot pose and orientation. 
+        Update goal vector based on the robot pose.
         '''
         _, _, self.yaw = euler_from_quaternion(msg.pose.pose.orientation)
-        goal_vector_x = - (self.goal.y - msg.pose.pose.position.y) # flipped bc of 
-        goal_vector_y = self.goal.x - msg.pose.pose.position.x
         self.robot_pose = Point(msg.pose.pose.position.x, msg.pose.pose.position.y)
+        goal_vector_x = - (self.goal.y - self.robot_pose.y)
+        goal_vector_y = self.goal.x - self.robot_pose.x
         self.goal_vector = Vector2D(goal_vector_x*self.goal_vector_weight_x, goal_vector_y*self.goal_vector_weight_y)
-
+        # print("goal vector: ", self.goal_vector.x, self.goal_vector.y)
+    
     def process_scan(self, msg):
+        '''
+        Processes laser scan data. Identifies obstacle clusters and add the 
+        respective opposition vectors to an array.
+        '''
         obstacle_vector_list = []
         markers = MarkerArray()
         total_x = 0.0
@@ -63,72 +88,66 @@ class ObstacleAvoiderNode(Node):
         count = 0
         for i in range(0,360):
             distance = msg.ranges[i]
+            # Filter for laser points and cluster them
             if (((i >= 0 and i <= self.max_angle) or (360 - self.max_angle <= i and i < 360)) and (distance != 0 and distance < self.max_distance)):
-                y = distance * math.sin(math.pi * (i/180))
-                x = distance * math.cos(math.pi * (i/180))
+
+                x,y = polar2cart(i, distance)
 
                 total_x += x
                 total_y += y
-
                 count += 1
+
             elif count != 0:
+
+                # Calculate centroid of the obstacle
                 cent_x = total_x/count
                 cent_y = total_y/count
+                # Create obstacle vector and add to list
                 obstacle_vector = Vector2D(cent_x, cent_y)
-
                 obstacle_vector_list.append(obstacle_vector)
+                # Create obstacle marker
                 markers.markers.append(self.create_marker(cent_x,cent_y, len(obstacle_vector_list)))
-
+                # Reset cluster counter
                 total_x = 0.0
                 total_y = 0.0
                 count = 0
-            # markers.markers.append(self.create_marker(self.goal.x, self.goal.y, len(obstacle_vector_list))+1)
         
-        self.print_obstacle_vectors(obstacle_vector_list)
+        # self.print_obstacle_vectors(obstacle_vector_list)
         self.pub_marker.publish(markers)
+        # Update direction the robot should head in
+        self.heading = self.calculate_heading(obstacle_vector_list)
 
-        self.direction = self.calculate_direction(obstacle_vector_list)
-
-    def cart_to_polar(self, x, y):
-        r = math.sqrt(x ** 2 + y ** 2)
-        degrees = math.degrees(math.atan2(y/x))
-        return(r, degrees)
-    
-    def print_obstacle_vectors(self, obstacle_vector_list):
-        list = []
-        for vector in obstacle_vector_list:
-            list.append([vector.x, vector.y])
-        print ("obstacle vectors:", list)
-
-    def process_obstacle_vector(self, x, y):
-        # given a point of the obstacle, calculate the unit vector from it to the robot
-        mag = math.sqrt(x**2 + y**2)
-        unit_vector = [x/mag, y/mag]
-        # intensity of opposition vector linearly scaled based on how close it is to the robot
-        scaled_mag = (-mag+3)
-        return unit_vector, scaled_mag
-
-    def calculate_direction(self, obstacle_vector_list):
-        # calculate direction the robot should go by adding up the negative vectors and the goal destination. 
+    def calculate_heading(self, obstacle_vector_list):
+        '''
+        Calculate the direction the robot should go by adding up opposing vectors
+        and the goal destination vector
+        '''
         self.print_obstacle_vectors(obstacle_vector_list)
-        direction = Vector2D(self.goal_vector.x, self.goal_vector.y)
+        heading = self.goal_vector
         for vector in obstacle_vector_list:
-            direction = direction.subtract(vector)
-        print("updating direction")
-        return direction
+            # print("obstacle vector:", vector)
+            # Weigh obstacle vector based on distnace from the robot. The weight is
+            # higher if the obstacle is closer. 
+            obstacle_weight = (3-abs(euclidean_distance(vector, self.robot_pose)))*0.5
+            vector.scale_weight(obstacle_weight,obstacle_weight)
+            # Subtracting obstacle vector from heading because the robot should move away from obstacle
+            heading = heading.subtract(vector) 
+        return heading
 
     def run_loop(self):
-        new_twist = Twist()
-        print("direction:", [self.direction.x, self.direction.y])
-        angle = math.atan2(self.direction.y, self.direction.x) # in radians
-        if abs(get_distance(self.goal, self.robot_pose)) > 0.5:
-            new_twist.linear.x = 0.1
-            if (self.direction.x < 0 and abs(self.direction.x + self.yaw) < 1):
-                new_twist.angular.z = 0.15
-            elif (self.direction.x > 0 and abs(self.direction.x - self.yaw) < 1):
-                new_twist.angular.z = -0.15
-        # print(new_twist.angular.z, new_twist.linear.x)
-        self.pub_velocity.publish(new_twist)
+        '''
+        Main robot control loop. Adjusts and updates Twist. 
+        '''
+        vel_msg = Twist()
+        if abs(euclidean_distance(self.goal, self.robot_pose)) > 0.5:
+            vel_msg.linear.x = 0.15 # Set forward velocity
+            # Control angular velocity of the robot based on difference between heading
+            # and the current direction the robot is facing
+            if (self.heading.x < 0 and abs(self.heading.x + self.yaw) < 1):
+                vel_msg.angular.z = 0.15
+            elif (self.heading.x > 0 and abs(self.heading.x - self.yaw) < 1):
+                vel_msg.angular.z = -0.15
+            self.pub_velocity.publish(vel_msg)
 
     def create_marker(self, x, y, id) -> Marker:
         marker = Marker()
@@ -147,11 +166,18 @@ class ObstacleAvoiderNode(Node):
         marker.type = Marker.SPHERE
         return marker
 
+    def print_obstacle_vectors(self, obstacle_vector_list):
+        list = []
+        for vector in obstacle_vector_list:
+            list.append([vector.x, vector.y])
+        print ("obstacle vectors:", list)
+
+#----- helper functions -----------
+
 def euler_from_quaternion(quaternion):
     """
-    Converts quaternion (w in last place) to euler roll, pitch, yaw
+    Converts quaternion to euler roll, pitch, yaw. 
     quaternion = [x, y, z, w]
-    Below should be replaced when porting for ROS 2 Python tf_conversions is done.
     """
     x = quaternion.x
     y = quaternion.y
@@ -171,8 +197,14 @@ def euler_from_quaternion(quaternion):
 
     return roll, pitch, yaw
 
-def get_distance(pt1, pt2):
+def euclidean_distance(pt1, pt2):
     return math.dist([pt1.x, pt1.y], [pt2.x, pt2.y])
+
+def polar2cart(degree, distance):
+    y = distance * math.sin(math.pi * (degree/180))
+    x = distance * math.cos(math.pi * (degree/180))
+    return x, y
+
 
 def main(args=None):
     rclpy.init(args=args)         # Initialize communication with ROS
