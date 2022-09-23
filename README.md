@@ -52,10 +52,14 @@ This can be improved a lot by subscribing to the /odom topic and getting to know
 ![](pictures/wall_follower_demo.gif)
 
 ## Approach
-The wall follower 
+For the wall following behavior, we wanted to have the robot be able to follow the wall on its right side. To do this, we first obtained the laser scan data at 45 and 135 degrees, which are angles 45 degrees from the robot's center on the right side. Refer to the following image for reference:
 
+![](pictures/wall_follower_diagram.png)
 
-how this is created, basic concept
+In order to move parallel to the wall, the laser scan distance detected at these two angles should be equal. We adjust which driection the robot should turn based on the difference between the two scan distances. 
+
+- If distance at 45 degrees > distance at 135, turn left
+- If distance at 135 degrees > distance at 45, turn right
 
 ## Structure
 
