@@ -56,7 +56,7 @@ For the wall following behavior, we wanted to have the robot be able to follow t
 
 ![](pictures/wall_follower_diagram.png)
 
-In order to move parallel to the wall, the laser scan distance detected at these two angles should be equal. We adjust which driection the robot should turn based on the difference between the two scan distances. 
+In order to move parallel to the wall, the laser scan distance detected at these two angles should be equal. We adjust which direction the robot should turn based on the difference between the two scan distances. 
 
 - If distance at 45 degrees > distance at 135, turn left
 - If distance at 135 degrees > distance at 45, turn right
@@ -66,7 +66,7 @@ In order to move parallel to the wall, the laser scan distance detected at these
 ![](pictures/wall_follower_structure.png)
 
 ## Limitation
-what can be improved
+Currently, the wall following behavior only works for following a wall on the right side. Adding the capability of wall follow on both sides introduces will introduce many complications. For instance, if there are two walls, how does the robot chose which wall to follow? Additionally, the wall follow behavior is not robust when there are obstacles between the robot and the wall as the laser scan data catches the obstacle instead of the wall. 
 
 # Person Follower
 
@@ -96,7 +96,7 @@ Since the robot is locating a person by getting the centroid of the LIDAR measur
 ![](pictures/obstacle_avoidance_demo.gif)
 
 ## Approach
-how this is created, basic concept
+For this task, we set the robot 
 
 ## Structure
 ![](pictures/obstacle_avoider_structure.png)
